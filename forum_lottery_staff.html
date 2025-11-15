@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>포럼 추첨 시스템 - 스태프</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 30px 20px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            text-align: center;
+            letter-spacing: 5px;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #11998e;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .alert-info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .alert-warning {
+            background: #fff3e0;
+            color: #f57c00;
+            border-left: 4px solid #f57c00;
+        }
+        
+        .alert-danger {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .status-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .status-number {
+            font-size: 48px;
+            font-weight: bold;
+            color: #11998e;
+            margin: 10px 0;
+        }
+        
+        .status-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .draw-button {
+            width: 100%;
+            height: 150px;
+            border: none;
+            border-radius: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            margin: 30px 0;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(245, 87, 108, 0.4);
+        }
+        
+        .draw-button:active {
+            transform: scale(0.95);
+        }
+        
+        .draw-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .result-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+        
+        .result-overlay.show {
+            display: flex;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .result-content {
+            text-align: center;
+            color: white;
+            padding: 40px;
+            animation: bounceIn 0.6s;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .result-icon {
+            font-size: 120px;
+            margin-bottom: 20px;
+        }
+        
+        .result-text {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .result-message {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        .win-result {
+            color: #4caf50;
+        }
+        
+        .lose-result {
+            color: #ff9800;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎁 포럼 추첨 시스템</h1>
+            <p>스태프 추첨 페이지</p>
+        </div>
+        
+        <div class="content">
+            <!-- 로그인 섹션 -->
+            <div id="loginSection">
+                <div class="alert alert-info">
+                    🔐 관리자가 설정한 암호를 입력하여 로그인하세요.
+                </div>
+                
+                <div class="input-group">
+                    <label>스태프 암호</label>
+                    <input type="password" id="passwordInput" placeholder="암호 입력" maxlength="10">
+                </div>
+                
+                <button class="btn btn-primary" onclick="login()">
+                    ✅ 로그인
+                </button>
+            </div>
+            
+            <!-- 추첨 섹션 -->
+            <div id="lotterySection" class="hidden">
+                <div class="status-info">
+                    <div class="status-label">남은 선물</div>
+                    <div class="status-number" id="remainingGifts">300</div>
+                </div>
+                
+                <div id="systemStatusAlert" class="alert alert-warning hidden">
+                    ⏸️ 관리자가 추첨을 중단했습니다. 잠시만 기다려주세요.
+                </div>
+                
+                <div id="noGiftsAlert" class="alert alert-danger hidden">
+                    🎁 모든 선물이 소진되었습니다!
+                </div>
+                
+                <button class="draw-button" id="drawButton" onclick="performDraw()">
+                    🎲<br>추첨하기
+                </button>
+                
+                <button class="btn btn-danger" onclick="logout()">
+                    🚪 로그아웃
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 결과 오버레이 -->
+    <div class="result-overlay" id="resultOverlay" onclick="closeResult()">
+        <div class="result-content" id="resultContent">
+            <div class="result-icon" id="resultIcon">🎉</div>
+            <div class="result-text" id="resultText">당첨!</div>
+            <div class="result-message" id="resultMessage">축하합니다!</div>
+        </div>
+    </div>
+    
+    <script>
+        const STORAGE_KEY = 'forum_lottery_system';
+        let isLoggedIn = false;
+        
+        // 페이지 로드 시
+        window.addEventListener('load', function() {
+            checkLoginStatus();
+        });
+        
+        // 로그인 상태 확인
+        function checkLoginStatus() {
+            const loggedIn = sessionStorage.getItem('staff_logged_in');
+            if (loggedIn === 'true') {
+                isLoggedIn = true;
+                showLotterySection();
+                startAutoUpdate();
+            }
+        }
+        
+        // 로그인
+        function login() {
+            const password = document.getElementById('passwordInput').value.trim();
+            
+            if (!password) {
+                alert('⚠️ 암호를 입력해주세요!');
+                return;
+            }
+            
+            const systemData = getSystemData();
+            
+            if (!systemData || !systemData.initialized) {
+                alert('⚠️ 시스템이 초기화되지 않았습니다.\n관리자에게 문의하세요.');
+                return;
+            }
+            
+            if (password !== systemData.staffPassword) {
+                alert('❌ 암호가 틀렸습니다!');
+                document.getElementById('passwordInput').value = '';
+                return;
+            }
+            
+            sessionStorage.setItem('staff_logged_in', 'true');
+            isLoggedIn = true;
+            showLotterySection();
+            startAutoUpdate();
+            
+            alert('✅ 로그인 성공!\n추첨을 시작할 수 있습니다.');
+        }
+        
+        // 로그아웃
+        function logout() {
+            if (confirm('로그아웃 하시겠습니까?')) {
+                sessionStorage.removeItem('staff_logged_in');
+                isLoggedIn = false;
+                document.getElementById('loginSection').classList.remove('hidden');
+                document.getElementById('lotterySection').classList.add('hidden');
+                document.getElementById('passwordInput').value = '';
+            }
+        }
+        
+        // 추첨 섹션 표시
+        function showLotterySection() {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('lotterySection').classList.remove('hidden');
+            updateDisplay();
+        }
+        
+        // 추첨 실행
+        function performDraw() {
+            const systemData = getSystemData();
+            
+            if (!systemData || !systemData.initialized) {
+                alert('⚠️ 시스템이 초기화되지 않았습니다.');
+                return;
+            }
+            
+            if (!systemData.isActive) {
+                alert('⚠️ 관리자가 추첨을 중단했습니다.\n잠시 후 다시 시도해주세요.');
+                return;
+            }
+            
+            if (systemData.remainingGifts <= 0) {
+                showResult(false, true);
+                return;
+            }
+            
+            // 버튼 비활성화
+            const drawButton = document.getElementById('drawButton');
+            drawButton.disabled = true;
+            
+            // 스마트 확률 계산
+            const remaining = systemData.remainingGifts;
+            const totalDrawsLeft = Math.max(500 - systemData.totalDraws, remaining);
+            let probability = remaining / totalDrawsLeft;
+            
+            // 확률 보정 (300개를 정확히 배분하기 위해)
+            if (remaining > 0 && remaining < 50) {
+                probability = Math.min(probability * 1.5, 0.95);
+            }
+            
+            // 추첨 실행
+            const isWin = Math.random() < probability;
+            
+            // 데이터 업데이트
+            systemData.totalDraws++;
+            if (isWin && systemData.remainingGifts > 0) {
+                systemData.remainingGifts--;
+                systemData.distributedGifts++;
+            }
+            
+            // 추첨 기록
+            systemData.drawHistory = systemData.drawHistory || [];
+            systemData.drawHistory.push({
+                timestamp: new Date().toISOString(),
+                result: isWin ? 'win' : 'lose',
+                remainingAfter: systemData.remainingGifts
+            });
+            
+            // 저장
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(systemData));
+            
+            // 결과 표시 (0.5초 딜레이)
+            setTimeout(function() {
+                showResult(isWin, false);
+                drawButton.disabled = false;
+                updateDisplay();
+            }, 500);
+        }
+        
+        // 결과 표시
+        function showResult(isWin, noGifts) {
+            const overlay = document.getElementById('resultOverlay');
+            const icon = document.getElementById('resultIcon');
+            const text = document.getElementById('resultText');
+            const message = document.getElementById('resultMessage');
+            const content = document.getElementById('resultContent');
+            
+            if (noGifts) {
+                icon.textContent = '😅';
+                text.textContent = '선물 소진';
+                message.textContent = '모든 선물이 배분되었습니다';
+                content.className = 'result-content lose-result';
+            } else if (isWin) {
+                icon.textContent = '🎉';
+                text.textContent = '당첨!';
+                message.textContent = 'K-뷰티 화장품 세트를 드립니다!';
+                content.className = 'result-content win-result';
+                
+                // 햅틱 피드백 (지원되는 경우)
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 100, 50, 100]);
+                }
+            } else {
+                icon.textContent = '😊';
+                text.textContent = '다음 기회에!';
+                message.textContent = '아쉽지만 응원 감사합니다';
+                content.className = 'result-content lose-result';
+            }
+            
+            overlay.classList.add('show');
+            
+            // 3초 후 자동 닫기
+            setTimeout(function() {
+                closeResult();
+            }, 3000);
+        }
+        
+        // 결과 닫기
+        function closeResult() {
+            document.getElementById('resultOverlay').classList.remove('show');
+        }
+        
+        // 시스템 데이터 가져오기
+        function getSystemData() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : null;
+        }
+        
+        // 화면 업데이트
+        function updateDisplay() {
+            const systemData = getSystemData();
+            if (!systemData) return;
+            
+            document.getElementById('remainingGifts').textContent = systemData.remainingGifts;
+            
+            const drawButton = document.getElementById('drawButton');
+            const statusAlert = document.getElementById('systemStatusAlert');
+            const noGiftsAlert = document.getElementById('noGiftsAlert');
+            
+            if (!systemData.isActive) {
+                drawButton.disabled = true;
+                statusAlert.classList.remove('hidden');
+                noGiftsAlert.classList.add('hidden');
+            } else if (systemData.remainingGifts <= 0) {
+                drawButton.disabled = true;
+                statusAlert.classList.add('hidden');
+                noGiftsAlert.classList.remove('hidden');
+            } else {
+                drawButton.disabled = false;
+                statusAlert.classList.add('hidden');
+                noGiftsAlert.classList.add('hidden');
+            }
+        }
+        
+        // 자동 업데이트 시작
+        function startAutoUpdate() {
+            setInterval(function() {
+                if (isLoggedIn) {
+                    updateDisplay();
+                }
+            }, 1000);
+        }
+        
+        // 엔터키로 로그인
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('passwordInput');
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        login();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

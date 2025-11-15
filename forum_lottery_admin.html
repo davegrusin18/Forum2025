@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>포럼 추첨 시스템 - 관리자</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 30px 20px;
+        }
+        
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .status-row:last-child {
+            border-bottom: none;
+        }
+        
+        .status-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .status-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .status-value.large {
+            font-size: 36px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .qr-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .qr-section h3 {
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+        
+        #qrcode {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .staff-link {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            word-break: break-all;
+            font-size: 14px;
+            color: #667eea;
+            margin-top: 15px;
+            border: 2px dashed #667eea;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .alert-info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .alert-success {
+            background: #e8f5e9;
+            color: #388e3c;
+            border-left: 4px solid #388e3c;
+        }
+        
+        .alert-danger {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .badge-active {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .badge-inactive {
+            background: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎁 포럼 추첨 시스템</h1>
+            <p>관리자 대시보드</p>
+        </div>
+        
+        <div class="content">
+            <!-- 초기 설정 섹션 -->
+            <div id="setupSection">
+                <div class="alert alert-info">
+                    👋 환영합니다! 먼저 시스템을 초기화하고 스태프 암호를 설정해주세요.
+                </div>
+                
+                <div class="input-group">
+                    <label>총 선물 개수</label>
+                    <input type="number" id="totalGifts" value="300" min="1">
+                </div>
+                
+                <div class="input-group">
+                    <label>스태프 암호 (4자리 숫자 권장)</label>
+                    <input type="text" id="staffPassword" placeholder="예: 1234">
+                </div>
+                
+                <button class="btn btn-primary" onclick="initializeSystem()">
+                    🚀 시스템 초기화 및 시작
+                </button>
+            </div>
+            
+            <!-- 관리 섹션 -->
+            <div id="controlSection" class="hidden">
+                <div class="status-card">
+                    <div class="status-row">
+                        <span class="status-label">시스템 상태</span>
+                        <span class="status-value" id="systemStatus">
+                            <span class="badge badge-inactive">중지됨</span>
+                        </span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">남은 선물</span>
+                        <span class="status-value large" id="remainingGifts">300</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">배분된 선물</span>
+                        <span class="status-value" id="distributedGifts">0</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">총 추첨 횟수</span>
+                        <span class="status-value" id="totalDraws">0</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">당첨 확률</span>
+                        <span class="status-value" id="winRate">0%</span>
+                    </div>
+                </div>
+                
+                <!-- QR 코드 섹션 -->
+                <div class="qr-section">
+                    <h3>📱 스태프용 QR 코드</h3>
+                    <div id="qrcode"></div>
+                    <p style="color: #666; font-size: 14px;">스태프들이 이 QR 코드를 스캔하면<br>자동으로 추첨 페이지로 이동합니다</p>
+                    <div class="staff-link" id="staffLinkDisplay"></div>
+                    <button class="btn btn-primary" onclick="copyStaffLink()" style="margin-top: 10px;">
+                        📋 링크 복사하기
+                    </button>
+                </div>
+                
+                <button class="btn btn-success" id="startBtn" onclick="startLottery()">
+                    ▶️ 추첨 시작
+                </button>
+                
+                <button class="btn btn-danger hidden" id="stopBtn" onclick="stopLottery()">
+                    ⏸️ 추첨 중단
+                </button>
+                
+                <button class="btn btn-warning" onclick="resetSystem()">
+                    🔄 시스템 초기화
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- QR Code Generator Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    
+    <script>
+        // 시스템 상태 관리
+        const STORAGE_KEY = 'forum_lottery_system';
+        
+        // 페이지 로드 시 상태 확인
+        window.addEventListener('load', function() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                if (data.initialized) {
+                    document.getElementById('setupSection').classList.add('hidden');
+                    document.getElementById('controlSection').classList.remove('hidden');
+                    updateDisplay();
+                    generateQRCode();
+                }
+            }
+        });
+        
+        // 시스템 초기화
+        function initializeSystem() {
+            const totalGifts = parseInt(document.getElementById('totalGifts').value);
+            const password = document.getElementById('staffPassword').value.trim();
+            
+            if (!password) {
+                alert('⚠️ 스태프 암호를 입력해주세요!');
+                return;
+            }
+            
+            if (totalGifts < 1) {
+                alert('⚠️ 선물 개수는 1개 이상이어야 합니다!');
+                return;
+            }
+            
+            const systemData = {
+                initialized: true,
+                totalGifts: totalGifts,
+                remainingGifts: totalGifts,
+                distributedGifts: 0,
+                totalDraws: 0,
+                staffPassword: password,
+                isActive: false,
+                drawHistory: []
+            };
+            
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(systemData));
+            
+            document.getElementById('setupSection').classList.add('hidden');
+            document.getElementById('controlSection').classList.remove('hidden');
+            
+            updateDisplay();
+            generateQRCode();
+            
+            alert('✅ 시스템이 초기화되었습니다!\n\n이제 스태프들에게 QR 코드를 공유하고 "추첨 시작" 버튼을 눌러주세요.');
+        }
+        
+        // QR 코드 생성
+        function generateQRCode() {
+            const currentUrl = window.location.href;
+            const staffUrl = currentUrl.replace('admin.html', 'staff.html');
+            
+            document.getElementById('staffLinkDisplay').textContent = staffUrl;
+            
+            const qrcodeContainer = document.getElementById('qrcode');
+            qrcodeContainer.innerHTML = '';
+            
+            QRCode.toCanvas(staffUrl, {
+                width: 200,
+                margin: 2,
+                color: {
+                    dark: '#667eea',
+                    light: '#ffffff'
+                }
+            }, function(error, canvas) {
+                if (error) {
+                    console.error(error);
+                    qrcodeContainer.innerHTML = '<p style="color: red;">QR 코드 생성 실패</p>';
+                } else {
+                    qrcodeContainer.appendChild(canvas);
+                }
+            });
+        }
+        
+        // 스태프 링크 복사
+        function copyStaffLink() {
+            const staffLink = document.getElementById('staffLinkDisplay').textContent;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(staffLink).then(function() {
+                    alert('✅ 링크가 복사되었습니다!\n카카오톡으로 스태프들에게 전송해주세요.');
+                }).catch(function(err) {
+                    fallbackCopyTextToClipboard(staffLink);
+                });
+            } else {
+                fallbackCopyTextToClipboard(staffLink);
+            }
+        }
+        
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.top = "-1000px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                alert('✅ 링크가 복사되었습니다!');
+            } catch (err) {
+                alert('⚠️ 복사 실패. 링크를 직접 선택해서 복사해주세요:\n\n' + text);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+        
+        // 추첨 시작
+        function startLottery() {
+            const data = getSystemData();
+            data.isActive = true;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('stopBtn').classList.remove('hidden');
+            
+            updateDisplay();
+            alert('✅ 추첨이 시작되었습니다!\n스태프들이 이제 추첨을 진행할 수 있습니다.');
+        }
+        
+        // 추첨 중단
+        function stopLottery() {
+            const data = getSystemData();
+            data.isActive = false;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+            
+            document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('stopBtn').classList.add('hidden');
+            
+            updateDisplay();
+            alert('⏸️ 추첨이 중단되었습니다.');
+        }
+        
+        // 시스템 초기화
+        function resetSystem() {
+            if (confirm('⚠️ 정말로 시스템을 초기화하시겠습니까?\n\n모든 추첨 기록이 삭제되고 처음부터 다시 시작됩니다.')) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+        
+        // 시스템 데이터 가져오기
+        function getSystemData() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : null;
+        }
+        
+        // 화면 업데이트
+        function updateDisplay() {
+            const data = getSystemData();
+            if (!data) return;
+            
+            document.getElementById('remainingGifts').textContent = data.remainingGifts;
+            document.getElementById('distributedGifts').textContent = data.distributedGifts;
+            document.getElementById('totalDraws').textContent = data.totalDraws;
+            
+            const winRate = data.totalDraws > 0 
+                ? ((data.distributedGifts / data.totalDraws) * 100).toFixed(1)
+                : 0;
+            document.getElementById('winRate').textContent = winRate + '%';
+            
+            const statusBadge = data.isActive 
+                ? '<span class="badge badge-active">진행중</span>'
+                : '<span class="badge badge-inactive">중지됨</span>';
+            document.getElementById('systemStatus').innerHTML = statusBadge;
+            
+            if (data.isActive) {
+                document.getElementById('startBtn').classList.add('hidden');
+                document.getElementById('stopBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('startBtn').classList.remove('hidden');
+                document.getElementById('stopBtn').classList.add('hidden');
+            }
+        }
+        
+        // 자동 새로고침 (1초마다)
+        setInterval(function() {
+            if (!document.getElementById('controlSection').classList.contains('hidden')) {
+                updateDisplay();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
